@@ -45,7 +45,7 @@ public class ErrorflowExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   WebRequest request) {
 
         String userMessage = messageSource().getMessage("invalid.message", null, LocaleContextHolder.getLocale());
-        String developerMessage = ex.getCause().toString();
+        String developerMessage = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
         List<Erro> errors = Arrays.asList(new Erro(userMessage, developerMessage));
         return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request );
     }

@@ -1,8 +1,8 @@
 package dev.jmvg.codenation.errorflow.api.resource;
 
 import dev.jmvg.codenation.errorflow.api.event.ResourceCreatedEvent;
-import dev.jmvg.codenation.errorflow.api.model.Level;
-import dev.jmvg.codenation.errorflow.api.repository.LevelRepository;
+import dev.jmvg.codenation.errorflow.api.model.Event;
+import dev.jmvg.codenation.errorflow.api.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -20,35 +20,33 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/levels")
-public class LevelResource {
-
-    private final LevelRepository levelRepository;
+@RequestMapping("/v1/events")
+public class EventResource {
+    private final EventRepository eventRepository;
     private final ApplicationEventPublisher publisher;
 
     @Autowired
-    public LevelResource(LevelRepository levelRepository, ApplicationEventPublisher publisher) {
-        this.levelRepository = levelRepository;
+    public EventResource(EventRepository eventRepository, ApplicationEventPublisher publisher) {
+        this.eventRepository = eventRepository;
         this.publisher = publisher;
     }
 
     @GetMapping
-    public List<Level> findAll(){
-        return levelRepository.findAll();
+    public List<Event> findAllEvents(){
+        return eventRepository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Event> getByEventId(@PathVariable("id") Long id){
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(event);
     }
 
     @PostMapping
-    public ResponseEntity<Level> newLevel(@Valid @RequestBody Level level, HttpServletResponse response){
-        Level levelSaved = levelRepository.save(level);
-
-        publisher.publishEvent(new ResourceCreatedEvent(this, response, levelSaved.getId()));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(levelSaved);
+    public ResponseEntity<Event> createEvent(@Valid @RequestBody Event event, HttpServletResponse response){
+        Event savedEvent = eventRepository.save(event);
+        publisher.publishEvent(new ResourceCreatedEvent(this, response, savedEvent.getId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
     }
-    @GetMapping("/{id}")
-    public Level getById(@PathVariable Integer id){
-        return levelRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
 }

@@ -1,4 +1,4 @@
-package dev.jmvg.codenation.errorflow.api.event.Listener;
+package dev.jmvg.codenation.errorflow.api.event.listener;
 
 import dev.jmvg.codenation.errorflow.api.event.ResourceCreatedEvent;
 import org.springframework.context.ApplicationListener;
@@ -13,12 +13,12 @@ public class ResourceCreatedListener implements ApplicationListener<ResourceCrea
     @Override
     public void onApplicationEvent(ResourceCreatedEvent resourceCreatedEvent) {
         HttpServletResponse response = resourceCreatedEvent.getResponse();
-        Integer id = resourceCreatedEvent.getId();
+        Long id = resourceCreatedEvent.getId();
 
         addHeaderLocation(response, id);
     }
 
-    private void addHeaderLocation(HttpServletResponse response, Integer id){
+    private void addHeaderLocation(HttpServletResponse response, Long id){
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}")
                 .buildAndExpand(id).toUri();
         response.setHeader("Location", uri.toASCIIString());

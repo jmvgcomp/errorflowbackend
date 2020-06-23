@@ -9,9 +9,9 @@ public class ResourceCreatedEvent extends ApplicationEvent {
     @Getter
     private final HttpServletResponse response;
     @Getter
-    private final Integer id;
+    private final Long id;
 
-    public ResourceCreatedEvent(Object source, HttpServletResponse response, Integer id) {
+    public ResourceCreatedEvent(Object source, HttpServletResponse response, Long id) {
         super(source);
         this.response = response;
         this.id = id;
