@@ -10,9 +10,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/levels")
@@ -30,7 +30,7 @@ public class LevelResource {
     }
 
     @PostMapping
-    public ResponseEntity<Level> newLevel(@RequestBody Level level, HttpServletResponse response){
+    public ResponseEntity<Level> newLevel(@Valid @RequestBody Level level, HttpServletResponse response){
         Level levelSaved = levelRepository.save(level);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}")
