@@ -1,6 +1,7 @@
-package dev.jmvg.codenation.errorflow.api.service.ServiceImplementation;
+package dev.jmvg.codenation.errorflow.api.service.implementation;
 
 import dev.jmvg.codenation.errorflow.api.event.ResourceCreatedEvent;
+import dev.jmvg.codenation.errorflow.api.filter.EventFilter;
 import dev.jmvg.codenation.errorflow.api.model.Event;
 import dev.jmvg.codenation.errorflow.api.repository.EventRepository;
 import dev.jmvg.codenation.errorflow.api.service.EventService;
@@ -28,9 +29,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findAll() {
-        return eventRepository.findAll();
+    public List<Event> findAll(EventFilter eventFilter) {
+        return eventRepository.filter(eventFilter);
     }
+
 
     @Override
     public ResponseEntity<Event> getByEventId(Long id) {
@@ -59,4 +61,6 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EmptyResultDataAccessException(1));
         eventRepository.delete(event);
     }
+
+
 }

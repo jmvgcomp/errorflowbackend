@@ -1,5 +1,6 @@
 package dev.jmvg.codenation.errorflow.api.exceptions;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -74,7 +75,7 @@ public class ErrorflowExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
                                                                        WebRequest request){
         String userMessage = messageSource().getMessage("operation.not.allowed", null, LocaleContextHolder.getLocale());
-        String developerMessage = ex.toString();
+        String developerMessage = ExceptionUtils.getRootCauseMessage(ex);
         List<Erro> errors = Arrays.asList(new Erro(userMessage, developerMessage));
         return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }

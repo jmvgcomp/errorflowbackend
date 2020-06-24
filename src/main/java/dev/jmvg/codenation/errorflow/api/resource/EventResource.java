@@ -1,7 +1,8 @@
 package dev.jmvg.codenation.errorflow.api.resource;
 
+import dev.jmvg.codenation.errorflow.api.filter.EventFilter;
 import dev.jmvg.codenation.errorflow.api.model.Event;
-import dev.jmvg.codenation.errorflow.api.service.ServiceImplementation.EventServiceImpl;
+import dev.jmvg.codenation.errorflow.api.service.implementation.EventServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +32,8 @@ public class EventResource {
     }
 
     @GetMapping
-    public List<Event> findAllEvents(){
-        return eventServiceImpl.findAll();
+    public List<Event> findAllEvents(EventFilter eventFilter){
+        return eventServiceImpl.findAll(eventFilter);
     }
 
     @GetMapping("/{id}")
