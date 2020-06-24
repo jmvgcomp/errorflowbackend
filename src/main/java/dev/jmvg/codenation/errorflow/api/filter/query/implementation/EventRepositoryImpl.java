@@ -1,10 +1,13 @@
-package dev.jmvg.codenation.errorflow.api.query.implementation;
+package dev.jmvg.codenation.errorflow.api.filter.query.implementation;
 
 import dev.jmvg.codenation.errorflow.api.filter.EventFilter;
 import dev.jmvg.codenation.errorflow.api.model.Event;
+import dev.jmvg.codenation.errorflow.api.filter.query.EventRepositoryQuery;
 import dev.jmvg.codenation.errorflow.api.model.Event_;
-import dev.jmvg.codenation.errorflow.api.query.EventRepositoryQuery;
 import dev.jmvg.codenation.errorflow.api.utils.EnumConverter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -24,10 +27,8 @@ public class EventRepositoryImpl implements EventRepositoryQuery {
     @PersistenceContext
     private EntityManager manager;
 
-    EnumConverter converter = new EnumConverter();
-
     @Override
-    public List<Event> filter(EventFilter eventFilter) {
+    public Page<Event> filter(EventFilter eventFilter, Pageable pageable) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         CriteriaQuery<Event> criteria = builder.createQuery(Event.class);
 
@@ -38,7 +39,9 @@ public class EventRepositoryImpl implements EventRepositoryQuery {
 
         TypedQuery<Event> query = manager.createQuery(criteria);
 
-        return query.getResultList();
+        addRestrictionPaginationQuery(query, pageable);
+
+        return new PageImpl<>(query.getResultList(), pageable, totalResults(eventFilter));
     }
 
     private Predicate[] createRestrictions(EventFilter eventFilter,
@@ -52,7 +55,7 @@ public class EventRepositoryImpl implements EventRepositoryQuery {
         }
         if(eventFilter.getLevel() != null) {
             predicates.add(
-                    builder.equal(root.get(Event_.level), converter.convert(eventFilter.getLevel().toString())
+                    builder.equal(root.get(Event_.level), new EnumConverter().convert(eventFilter.getLevel().toString())
             ));
         }
         if(!StringUtils.isEmpty(eventFilter.getOrigin())){
@@ -71,5 +74,28 @@ public class EventRepositoryImpl implements EventRepositoryQuery {
             );
         }
         return predicates.toArray(new Predicate[predicates.size()]);
+    }
+
+    private void addRestrictionPaginationQuery(TypedQuery<Event> query, Pageable pageable) {
+        int atualPage = pageable.getPageNumber();
+        int totalResultsCount = pageable.getPageSize();
+        int firstResultPage = atualPage * totalResultsCount;
+
+        query.setFirstResult(firstResultPage);
+        query.setMaxResults(totalResultsCount);
+
+    }
+
+    private Long totalResults(EventFilter eventFilter) {
+        CriteriaBuilder builder = manager.getCriteriaBuilder();
+        CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+
+        Root<Event> root = criteria.from(Event.class);
+        Predicate[] predicates = createRestrictions(eventFilter, builder, root);
+
+        criteria.where(predicates);
+        criteria.select(builder.count(root));
+
+        return manager.createQuery(criteria).getSingleResult();
     }
 }

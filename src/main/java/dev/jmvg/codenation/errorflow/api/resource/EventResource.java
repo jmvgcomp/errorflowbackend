@@ -4,6 +4,8 @@ import dev.jmvg.codenation.errorflow.api.filter.EventFilter;
 import dev.jmvg.codenation.errorflow.api.model.Event;
 import dev.jmvg.codenation.errorflow.api.service.implementation.EventServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,8 +34,8 @@ public class EventResource {
     }
 
     @GetMapping
-    public List<Event> findAllEvents(EventFilter eventFilter){
-        return eventServiceImpl.findAll(eventFilter);
+    public Page<Event> findAllEvents(EventFilter eventFilter, Pageable pageable){
+        return eventServiceImpl.findAll(eventFilter, pageable);
     }
 
     @GetMapping("/{id}")
