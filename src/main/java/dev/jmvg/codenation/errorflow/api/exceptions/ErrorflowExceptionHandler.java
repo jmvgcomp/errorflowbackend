@@ -4,6 +4,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -56,7 +59,24 @@ public class ErrorflowExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   WebRequest request) {
         List<Erro> errors = errorList(ex.getBindingResult());
         return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
+    }
 
+    @ExceptionHandler({ EmptyResultDataAccessException.class })
+    public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex,
+                                                                       WebRequest request){
+        String userMessage = messageSource().getMessage("resource.not.found", null, LocaleContextHolder.getLocale());
+        String developerMessage = ex.toString();
+        List<Erro> errors = Arrays.asList(new Erro(userMessage, developerMessage));
+        return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler({ DataIntegrityViolationException.class })
+    public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
+                                                                       WebRequest request){
+        String userMessage = messageSource().getMessage("operation.not.allowed", null, LocaleContextHolder.getLocale());
+        String developerMessage = ex.toString();
+        List<Erro> errors = Arrays.asList(new Erro(userMessage, developerMessage));
+        return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     private List<Erro> errorList(BindingResult bindingResult){
@@ -67,7 +87,6 @@ public class ErrorflowExceptionHandler extends ResponseEntityExceptionHandler {
             String developerMessage = fieldError.toString();
             errors.add(new Erro(userMessage, developerMessage));
         }
-
         return errors;
     }
 }
