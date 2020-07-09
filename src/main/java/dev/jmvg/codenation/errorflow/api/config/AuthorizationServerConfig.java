@@ -29,14 +29,16 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .withClient("errorflow")
                 .secret("$2a$10$1rNifCTnPrfmzhLzdz6sEOZCl1usaNos0JzQSs.znr6ccp4fpN4N6") //error
                 .scopes("read", "write")
-                .authorizedGrantTypes("password") //passwordflow
-                .accessTokenValiditySeconds(1800);
+                .authorizedGrantTypes("password", "refresh_token") //passwordflow
+                .accessTokenValiditySeconds(1800)
+                .refreshTokenValiditySeconds(3600 * 24);
     }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints.tokenStore(tokenStore())
                 .accessTokenConverter(accessTokenConverter())
+                .reuseRefreshTokens(false)
                 .authenticationManager(authenticationManager);
     }
 
