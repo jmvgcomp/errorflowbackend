@@ -7,6 +7,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
@@ -33,9 +34,16 @@ public class RefreshTokenPostProcessor implements ResponseBodyAdvice<OAuth2Acces
         HttpServletRequest servletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) serverHttpResponse).getServletResponse();
 
+        DefaultOAuth2AccessToken defaultOAuth2AccessToken = (DefaultOAuth2AccessToken) oAuth2AccessToken;
+
         String refreshToken = Objects.requireNonNull(oAuth2AccessToken).getRefreshToken().getValue();
         addRefreshTokenCookie(refreshToken, servletRequest, servletResponse);
-        return null;
+        removeRefreshTokenBody(defaultOAuth2AccessToken);
+        return oAuth2AccessToken;
+    }
+
+    private void removeRefreshTokenBody(DefaultOAuth2AccessToken defaultOAuth2AccessToken) {
+        defaultOAuth2AccessToken.setRefreshToken(null);
     }
 
     private void addRefreshTokenCookie(String refreshToken, HttpServletRequest servletRequest,
@@ -45,7 +53,7 @@ public class RefreshTokenPostProcessor implements ResponseBodyAdvice<OAuth2Acces
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(false); //TODO: change for true in production
         refreshTokenCookie.setPath(servletRequest.getContextPath()+"/oauth/token");
-        refreshTokenCookie.setMaxAge(30);
+        refreshTokenCookie.setMaxAge(2592000);
         servletResponse.addCookie(refreshTokenCookie);
 
     }
