@@ -1,4 +1,4 @@
-package dev.jmvg.codenation.errorflow.api.config;
+package dev.jmvg.codenation.errorflow.api.security.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

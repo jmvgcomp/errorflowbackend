@@ -1,4 +1,4 @@
-package dev.jmvg.codenation.errorflow.api.config;
+package dev.jmvg.codenation.errorflow.api.security.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
