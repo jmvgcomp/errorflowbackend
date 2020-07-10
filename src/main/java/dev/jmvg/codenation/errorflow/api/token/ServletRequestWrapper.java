@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.Map;
 
 public class ServletRequestWrapper extends HttpServletRequestWrapper {
-    String refreshToken;
+    private final String refreshToken;
     public ServletRequestWrapper(HttpServletRequest request, String refreshToken) {
         super(request);
         this.refreshToken = refreshToken;
